@@ -3,89 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tip Your Farmers</title>
+    <title>Chapa Payment</title>
     <style>
-        /* Base styling for body */
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
+            background-color: #0d1b2a;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            padding: 0;
+            color: #ffffff;
         }
-
-        /* Container styling */
-        .container {
-            text-align: center;
-            background: #fff;
-            border-radius: 10px;
-            padding: 20px 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+        .payment-container {
+            background: #1b263b;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 400px;
             width: 100%;
         }
-
-        /* Main header styling */
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+        .header, .footer {
+            text-align: center;
         }
-
-        /* Tip button styling */
-        .tip-button {
-            background-color: #4CAF50;
-            color: white;
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .payment-method {
+            background: #111a27;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .payment-method h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .pay-btn {
+            width: 100%;
+            padding: 10px;
             border: none;
-            border-radius: 5px;
-            padding: 15px 25px;
+            border-radius: 8px;
+            background-color: #2ecc71;
+            color: #ffffff;
             font-size: 18px;
             cursor: pointer;
-            margin: 20px 0;
-            transition: background 0.3s;
+            transition: background-color 0.3s;
         }
-
-        .tip-button:hover {
-            background-color: #45a049;
+        .pay-btn:hover {
+            background-color: #27ae60;
         }
-
-        /* Learn more link styling */
-        .learn-more {
-            color: #0066cc;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .learn-more:hover {
-            text-decoration: underline;
-            color: #004d99;
-        }
-
-        /* Paragraph styling */
-        p {
-            font-size: 16px;
-            margin: 10px 0;
-        }
-
-        /* Footer paragraph styling */
-        .footer-note {
-            margin-top: 20px;
-            font-style: italic;
-            font-size: 14px;
-            color: #555;
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #333a47;
+            color: #ffffff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Header Text -->
-        <h1>Chapa</h1>
-        <p>Click "Tip" to proceed.</p>
 
-       
+<div class="payment-container">
+    <div class="header">
+        <h1>Chapa Payment Gateway</h1>
+        <p>Select your preferred payment method below.</p>
     </div>
+
+    <div class="payment-method">
+        <h2>Wallets, Local Cards, Bank Transfers</h2>
+        <p>Phone Number:</p>
+        <input type="text" id="phone-number" placeholder="09*******">
+        
+        <p>Amount (ETB):</p>
+        <input type="number" id="amount" placeholder="Enter amount" min="1">
+    </div>
+
+    <button class="pay-btn" onclick="startPayment()">Pay Now</button>
+
+    <div class="footer">
+        <p>Secured by Chapa</p>
+    </div>
+</div>
+
+<script>
+    function startPayment() {
+        // Get user input values
+        const phoneNumber = document.getElementById('phone-number').value;
+        const amount = document.getElementById('amount').value;
+
+        if (phoneNumber === '' || amount === '' || amount <= 0) {
+            alert('Please enter valid phone number and amount.');
+            return;
+        }
+
+        // Define Chapa parameters
+        const chapaPayload = {
+            'amount': amount,
+            'currency': 'ETB',
+            'email': 'fassikafikre@gmail.com',
+            'first_name': 'Fassika',
+            'last_name': 'Fikre',
+            'tx_ref': 'TX123456789',
+            'callback_url': 'https://google.com',
+            'customization[title]': 'Payment for Farmers',
+            'customization[description]': 'Support your farmers by tipping generously',
+            /*'customization[logo]': 'https://yourwebsite.com/logo.png',*/
+            'metadata[phone_number]': phoneNumber
+        };
+
+        // Make a POST request to Chapa API to initiate the payment
+        fetch('https://api.chapa.co/v1/transaction/initialize', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'CHAPUBK_TEST-l2k7fGR9xtXTjkPhDFSmKuFFJ9F8fGlw',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(chapaPayload),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Redirect user to Chapa payment page
+                window.location.href = data.data.checkout_url;
+            } else {
+                alert('Failed to initialize payment. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
+
 </body>
 </html>
