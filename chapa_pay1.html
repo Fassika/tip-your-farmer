@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapa Payment</title>
+</head>
+<body>
+    <h2>Make a Payment</h2>
+    <form id="paymentForm">
+        <label for="amount">Enter Amount:</label>
+        <input type="number" id="amount" required />
+        <button type="submit">Pay Now</button>
+    </form>
+
+    <script>
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Retrieve amount from the input field
+            const amount = document.getElementById('amount').value;
+
+            // Chapa transaction data
+            const transactionData = {
+                "amount": amount,
+                "currency": "ETB",
+                "email": "fassikafikre@gmail.com",
+                "first_name": "Fassika",
+                "last_name": "Fikre",
+                "tx_ref": "tx-12345",
+                "callback_url": "https://webhook.site/077164d6-29cb-47df-ba29-1a00e59a7e65",
+                "return_url": "https://google.com",
+                "customization": {
+                    "title": "Payment",
+                    "description": "Payment for services"
+                }
+            };
+
+            try {
+                const response = await fetch("https://api.chapa.co/v1/transaction/initialize", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": "Bearer YOUR_SECRET_KEY",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(transactionData)
+                });
+
+                const data = await response.json();
+
+                // Redirect user to Chapa's checkout URL
+                if (data.status === "success") {
+                    window.location.href = data.data.checkout_url;
+                } else {
+                    alert("Error initializing payment");
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        });
+    </script>
+</body>
+</html>
